@@ -1,0 +1,8 @@
+[package]
+name = "magirkle"
+version = "0.1.0"
+authors = ["Owez <root@ogriffiths.com>"]
+edition = "2018"
+
+[dependencies]
+blake3 = "0.3.7"
