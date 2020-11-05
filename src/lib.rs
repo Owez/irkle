@@ -5,6 +5,7 @@ use blake3::{self, Hash};
 use std::rc::Rc;
 
 /// A merkle tree
+#[derive(Debug, Clone, PartialEq)]
 pub struct Tree<T: AsRef<[u8]>> {
     /// Type of node contained inside the tree
     pub inner: NodeType<T>,
@@ -40,6 +41,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
 }
 
 /// Types of node that may be children
+#[derive(Debug, Clone, PartialEq)]
 pub enum NodeType<T: AsRef<[u8]>> {
     Node(Node<T>),
     Data(Data<T>),
@@ -47,6 +49,7 @@ pub enum NodeType<T: AsRef<[u8]>> {
 
 /// A middle-layer node, containing two nodes underneith that is of some [NodeType]
 /// variation
+#[derive(Debug, Clone, PartialEq)]
 pub struct Node<T: AsRef<[u8]>> {
     pub hash: Hash,
     pub left: Rc<NodeType<T>>,
@@ -56,27 +59,19 @@ pub struct Node<T: AsRef<[u8]>> {
 impl<T: AsRef<[u8]>> Node<T> {
     /// Creates a new [Node] from given data for both left and right. Typically
     /// used internally for creating the bottom-most [Node] easily
-    pub fn from_data<D: Into<Data<T>>>(left: D, right: D) -> Self {
-        let left_owned = left.into();
-        let right_owned = right.into();
-
-        let hash = blake3::hash(
-            &[
-                &left_owned.hash.as_bytes()[..],
-                &right_owned.hash.as_bytes()[..],
-            ]
-            .concat(),
-        );
+    pub fn from_data(left: Data<T>, right: Data<T>) -> Self {
+        let hash = blake3::hash(&[&left.hash.as_bytes()[..], &right.hash.as_bytes()[..]].concat());
 
         Self {
             hash,
-            left: Rc::new(NodeType::Data(left_owned)),
-            right: Rc::new(NodeType::Data(right_owned)),
+            left: Rc::new(NodeType::Data(left)),
+            right: Rc::new(NodeType::Data(right)),
         }
     }
 }
 
 /// The final datablock, containing the data needed
+#[derive(Debug, Clone, PartialEq)]
 pub struct Data<T: AsRef<[u8]>> {
     pub hash: Hash,
     pub data: T,
@@ -91,5 +86,35 @@ impl<T: AsRef<[u8]>> Data<T> {
             hash: blake3::hash(data_into.as_ref()),
             data: data_into.into(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tree_new_basic() {
+        let bottom_left: Node<&str> = Node::from_data(Data::new("hello"), Data::new("there"));
+        let bottom_right: Node<&str> = Node::from_data(Data::new("cool"), Data::new("person"));
+
+        let hash = blake3::hash(
+            &[
+                &bottom_left.hash.as_bytes()[..],
+                &bottom_right.hash.as_bytes()[..],
+            ]
+            .concat(),
+        );
+
+        let node = NodeType::Node(Node {
+            hash,
+            left: Rc::new(NodeType::Node(bottom_left)),
+            right: Rc::new(NodeType::Node(bottom_right)),
+        });
+
+        assert_eq!(
+            Tree::new(vec!["hello", "there", "cool", "person"]),
+            Tree { inner: node }
+        )
     }
 }
