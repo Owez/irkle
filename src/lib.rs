@@ -33,7 +33,7 @@ pub struct Tree<T: AsRef<[u8]>> {
 
 impl<T: AsRef<[u8]>> Tree<T> {
     /// Creates a new [Tree] based off of data supplied in `data`.
-    pub fn new<D: Into<T>, DP: IntoIterator<Item = D>>(datapoints: DP) -> Self {
+    pub fn new<D: IntoIterator<Item = T>>(datapoints: D) -> Self {
         let data_nodes = datapoints.into_iter().map(|data| Data::new(data));
 
         let mut bottom_nodes = vec![];
@@ -54,10 +54,10 @@ impl<T: AsRef<[u8]>> Tree<T> {
             };
         }
 
-        let top_node = make_middle_nodes(bottom_nodes);
+        // TODO: odd numbers
 
         Self {
-            inner: NodeType::Node(top_node),
+            inner: NodeType::Node(make_middle_nodes(bottom_nodes)),
         }
     }
 
@@ -157,6 +157,8 @@ mod tests {
         assert_eq!(
             Tree::new(vec!["hello", "there", "cool", "person"]),
             Tree { inner: node }
-        )
+        );
     }
+
+    // TODO: test for odd number
 }
