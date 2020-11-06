@@ -25,6 +25,16 @@ fn make_middle_nodes<T: AsRef<[u8]>>(children_nodes: Vec<Node<T>>) -> Node<T> {
 }
 
 /// A merkle tree
+
+/// # Example
+///
+/// ```rs
+/// use magirkle::Tree;
+///
+/// fn main() {
+///     println!("{:#?}", Tree::new(vec!["hello", "there"]));
+/// }
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct Tree<T: AsRef<[u8]>> {
     /// Type of node contained inside the tree
@@ -55,6 +65,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
         }
 
         // TODO: odd numbers
+        // TODO: fix two datatypes
 
         Self {
             inner: NodeType::Node(make_middle_nodes(bottom_nodes)),
@@ -161,4 +172,5 @@ mod tests {
     }
 
     // TODO: test for odd number
+    // TODO: test for just two datatypes
 }
