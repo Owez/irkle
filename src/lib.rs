@@ -4,6 +4,26 @@
 use blake3::{self, Hash};
 use std::rc::Rc;
 
+/// Self-recursive function which makes many [Node]s, resulting in a final, single
+/// [Node] containing all data below
+fn make_middle_nodes<T: AsRef<[u8]>>(children_nodes: Vec<Node<T>>) -> Node<T> {
+    let mut nodes = vec![];
+    let mut node_buf = None;
+
+    for data_node in children_nodes {
+        match node_buf {
+            Some(_) => nodes.push(Node::new(node_buf.take().unwrap(), data_node)),
+            None => node_buf = Some(data_node),
+        }
+    }
+
+    if nodes.len() == 1 {
+        nodes.pop().unwrap()
+    } else {
+        make_middle_nodes(nodes)
+    }
+}
+
 /// A merkle tree
 #[derive(Debug, Clone, PartialEq)]
 pub struct Tree<T: AsRef<[u8]>> {
@@ -15,8 +35,8 @@ impl<T: AsRef<[u8]>> Tree<T> {
     /// Creates a new [Tree] based off of data supplied in `data`.
     pub fn new<D: Into<T>, DP: IntoIterator<Item = D>>(datapoints: DP) -> Self {
         let data_nodes = datapoints.into_iter().map(|data| Data::new(data));
-        let mut bottom_nodes = vec![];
 
+        let mut bottom_nodes = vec![];
         let mut data_node_buf = None;
 
         for data_node in data_nodes {
@@ -26,9 +46,19 @@ impl<T: AsRef<[u8]>> Tree<T> {
                 }
                 None => data_node_buf = Some(data_node),
             }
-        } // TODO: clone this and make it a recursive function for use upwards in middle nodes also
+        }
 
-        unimplemented!()
+        if bottom_nodes.len() == 0 && data_node_buf.is_some() {
+            return Self {
+                inner: NodeType::Data(data_node_buf.take().unwrap()),
+            };
+        }
+
+        let top_node = make_middle_nodes(bottom_nodes);
+
+        Self {
+            inner: NodeType::Node(top_node),
+        }
     }
 
     /// Gets the hash for [Tree], stored in `inner.hash` typically
@@ -57,6 +87,18 @@ pub struct Node<T: AsRef<[u8]>> {
 }
 
 impl<T: AsRef<[u8]>> Node<T> {
+    /// Creates a new [Node] from nodes below. Use [Node::from_data] for making
+    /// new nodes containing data
+    pub fn new(left: Node<T>, right: Node<T>) -> Self {
+        let hash = blake3::hash(&[&left.hash.as_bytes()[..], &right.hash.as_bytes()[..]].concat());
+
+        Self {
+            hash,
+            left: Rc::new(NodeType::Node(left)),
+            right: Rc::new(NodeType::Node(right)),
+        }
+    }
+
     /// Creates a new [Node] from given data for both left and right. Typically
     /// used internally for creating the bottom-most [Node] easily
     pub fn from_data(left: Data<T>, right: Data<T>) -> Self {
