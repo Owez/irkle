@@ -183,6 +183,14 @@ impl<T: AsRef<[u8]>> NodeMethod for NodeType<T> {
     }
 }
 
+impl<T: AsRef<[u8]>> From<T> for NodeType<T> {
+    /// Similar to the `impl<T: AsRef<[u8]>> From<Data<T>> for NodeType<T>` impl
+    /// for [NodeType] but assumes raw input can also be a [Data]
+    fn from(data: T) -> Self {
+        NodeType::Data(Data::new(data))
+    }
+}
+
 impl<T: AsRef<[u8]>> From<Data<T>> for NodeType<T> {
     fn from(data: Data<T>) -> Self {
         NodeType::Data(data)
@@ -224,8 +232,8 @@ mod tests {
 
     #[test]
     fn tree_new_four() {
-        let bottom_left: Node<&str> = Node::new(Data::new("hello"), Data::new("there"));
-        let bottom_right: Node<&str> = Node::new(Data::new("cool"), Data::new("person"));
+        let bottom_left: Node<&str> = Node::new("hello", "there");
+        let bottom_right: Node<&str> = Node::new("cool", "person");
 
         let hash = blake3::hash(
             &[
@@ -249,7 +257,7 @@ mod tests {
 
     #[test]
     fn node_to_node_type() {
-        let inner: Node<&str> = Node::new(Data::new(""), Data::new("")).into();
+        let inner: Node<&str> = Node::new("", "").into();
 
         assert_eq!(NodeType::from(inner.clone()), NodeType::Node(inner))
     }
@@ -264,7 +272,7 @@ mod tests {
     #[test]
     fn node_get_hash() {
         let input = "hi";
-        let node: Node<&str> = Node::new(Data::new(input), Data::new(input));
+        let node: Node<&str> = Node::new(input, input);
 
         assert_eq!(
             node.get_hash(),
