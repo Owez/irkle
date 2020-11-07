@@ -266,16 +266,8 @@ mod tests {
         let input = "hi";
         let node: Node<&str> = Node::new(Data::new(input), Data::new(input));
 
-        assert_eq!(node.get_hash(), (blake3::hash("hi".as_bytes())));
-    }
-
-    #[test]
-    fn data_get_hash() {
-        let input = "hi";
-        let data: Data<&str> = Data::new(input);
-
         assert_eq!(
-            data.get_hash(),
+            node.get_hash(),
             blake3::hash(
                 &[
                     &blake3::hash(input.as_bytes()).as_bytes()[..],
@@ -284,5 +276,13 @@ mod tests {
                 .concat()
             )
         );
+    }
+
+    #[test]
+    fn data_get_hash() {
+        let input = "hi";
+        let data: Data<&str> = Data::new(input);
+
+        assert_eq!(data.get_hash(), blake3::hash(input.as_bytes()));
     }
 }
