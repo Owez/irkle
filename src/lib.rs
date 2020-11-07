@@ -4,16 +4,25 @@
 use blake3::{self, Hash};
 use std::rc::Rc;
 
+/// Trait to easily retreive a hash, no matter the [NodeType]
+pub trait HasHash {
+    /// Gets the [blake3]-based [Hash] for trait implementation, just call on any
+    /// [Node], [Data] or [NodeType] like so: `item.get_hash()`. Typically all
+    /// this method will do is get the `self.hash` but this can be used to adapt
+    /// a broader [NodeType]
+    fn get_hash(&self) -> Hash;
+}
+
 /// Self-recursive function which makes many [Node]s, resulting in a final, single
 /// [Node] containing all data below
 fn make_middle_nodes<T: AsRef<[u8]>>(children_nodes: Vec<Node<T>>) -> Node<T> {
     let mut nodes = vec![];
     let mut node_buf = None;
 
-    for data_node in children_nodes {
+    for child_node in children_nodes {
         match node_buf {
-            Some(_) => nodes.push(Node::new(node_buf.take().unwrap(), data_node)),
-            None => node_buf = Some(data_node),
+            Some(_) => nodes.push(Node::new(node_buf.take().unwrap(), child_node)),
+            None => node_buf = Some(child_node),
         }
     }
 
@@ -51,9 +60,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
 
         for data_node in data_nodes {
             match data_node_buf {
-                Some(_) => {
-                    bottom_nodes.push(Node::from_data(data_node_buf.take().unwrap(), data_node))
-                }
+                Some(_) => bottom_nodes.push(Node::new(data_node_buf.take().unwrap(), data_node)),
                 None => data_node_buf = Some(data_node),
             }
         }
@@ -81,13 +88,6 @@ impl<T: AsRef<[u8]>> Tree<T> {
     }
 }
 
-/// Types of node that may be children
-#[derive(Debug, Clone, PartialEq)]
-pub enum NodeType<T: AsRef<[u8]>> {
-    Node(Node<T>),
-    Data(Data<T>),
-}
-
 /// A middle-layer node, containing two nodes underneith that is of some [NodeType]
 /// variation
 #[derive(Debug, Clone, PartialEq)]
@@ -98,28 +98,30 @@ pub struct Node<T: AsRef<[u8]>> {
 }
 
 impl<T: AsRef<[u8]>> Node<T> {
-    /// Creates a new [Node] from nodes below. Use [Node::from_data] for making
-    /// new nodes containing data
-    pub fn new(left: Node<T>, right: Node<T>) -> Self {
-        let hash = blake3::hash(&[&left.hash.as_bytes()[..], &right.hash.as_bytes()[..]].concat());
+    /// Creates a new [Node] from nodes below
+    pub fn new<N: Into<NodeType<T>>>(left: N, right: N) -> Self {
+        let left_into = left.into();
+        let right_into = right.into();
+
+        let hash = blake3::hash(
+            &[
+                &left_into.get_hash().as_bytes()[..],
+                &right_into.get_hash().as_bytes()[..],
+            ]
+            .concat(),
+        );
 
         Self {
             hash,
-            left: Rc::new(NodeType::Node(left)),
-            right: Rc::new(NodeType::Node(right)),
+            left: Rc::new(left_into),
+            right: Rc::new(right_into),
         }
     }
+}
 
-    /// Creates a new [Node] from given data for both left and right. Typically
-    /// used internally for creating the bottom-most [Node] easily
-    pub fn from_data(left: Data<T>, right: Data<T>) -> Self {
-        let hash = blake3::hash(&[&left.hash.as_bytes()[..], &right.hash.as_bytes()[..]].concat());
-
-        Self {
-            hash,
-            left: Rc::new(NodeType::Data(left)),
-            right: Rc::new(NodeType::Data(right)),
-        }
+impl<T: AsRef<[u8]>> HasHash for Node<T> {
+    fn get_hash(&self) -> Hash {
+        self.hash
     }
 }
 
@@ -142,14 +144,71 @@ impl<T: AsRef<[u8]>> Data<T> {
     }
 }
 
+impl<T: AsRef<[u8]>> HasHash for Data<T> {
+    fn get_hash(&self) -> Hash {
+        self.hash
+    }
+}
+
+/// Types of node that may be children
+#[derive(Debug, Clone, PartialEq)]
+pub enum NodeType<T: AsRef<[u8]>> {
+    Node(Node<T>),
+    Data(Data<T>),
+}
+
+impl<T: AsRef<[u8]>> HasHash for NodeType<T> {
+    fn get_hash(&self) -> Hash {
+        match self {
+            NodeType::Node(inner) => inner.hash,
+            NodeType::Data(inner) => inner.hash,
+        }
+    }
+}
+
+impl<T: AsRef<[u8]>> From<Data<T>> for NodeType<T> {
+    fn from(data: Data<T>) -> Self {
+        NodeType::Data(data)
+    }
+}
+
+impl<T: AsRef<[u8]>> From<Node<T>> for NodeType<T> {
+    fn from(node: Node<T>) -> Self {
+        NodeType::Node(node)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn tree_new_basic() {
-        let bottom_left: Node<&str> = Node::from_data(Data::new("hello"), Data::new("there"));
-        let bottom_right: Node<&str> = Node::from_data(Data::new("cool"), Data::new("person"));
+    fn tree_new_two() {
+        assert_eq!(
+            Tree::new(vec!["left one", "right one"]),
+            Tree {
+                inner: NodeType::Node(Node::new(Data::new("left one"), Data::new("right one")))
+            }
+        )
+    }
+
+    #[test]
+    fn tree_new_odd() {
+        let left = NodeType::Node(Node::new(Data::new("this"), Data::new("is")));
+        let right = NodeType::Data(Data::new("odd"));
+
+        assert_eq!(
+            Tree::new(vec!["this", "is", "odd"]),
+            Tree {
+                inner: NodeType::Node(Node::new(left, right))
+            }
+        )
+    }
+
+    #[test]
+    fn tree_new_four() {
+        let bottom_left: Node<&str> = Node::new(Data::new("hello"), Data::new("there"));
+        let bottom_right: Node<&str> = Node::new(Data::new("cool"), Data::new("person"));
 
         let hash = blake3::hash(
             &[
@@ -168,9 +227,6 @@ mod tests {
         assert_eq!(
             Tree::new(vec!["hello", "there", "cool", "person"]),
             Tree { inner: node }
-        );
+        )
     }
-
-    // TODO: test for odd number
-    // TODO: test for just two datatypes
 }
