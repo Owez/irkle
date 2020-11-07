@@ -34,7 +34,7 @@ pub trait NodeMethod {
 }
 
 /// A merkle tree
-
+///
 /// # Example
 ///
 /// ```rs
