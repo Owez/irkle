@@ -246,4 +246,34 @@ mod tests {
             Tree { inner: node }
         )
     }
+
+    #[test]
+    fn node_to_node_type() {
+        let inner: Node<&str> = Node::new(Data::new(""), Data::new("")).into();
+
+        assert_eq!(NodeType::from(inner.clone()), NodeType::Node(inner))
+    }
+
+    #[test]
+    fn data_to_node_type() {
+        let inner: Data<&str> = Data::new("");
+
+        assert_eq!(NodeType::from(inner.clone()), NodeType::Data(inner))
+    }
+
+    #[test]
+    fn node_get_hash() {
+        let input = "hi";
+        let node: Node<&str> = Node::new(Data::new(input), Data::new(input));
+
+        assert_eq!(node.get_hash(), blake3::hash(input.as_bytes()));
+    }
+
+    #[test]
+    fn data_get_hash() {
+        let input = "hi";
+        let data: Data<&str> = Data::new(input);
+
+        assert_eq!(data.get_hash(), blake3::hash(input.as_bytes()));
+    }
 }
