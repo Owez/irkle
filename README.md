@@ -11,3 +11,12 @@ fn main() {
     println!("{:#?}", Tree::new(vec!["hello", "there"]));
 }
 ```
+
+## Installation
+
+Simply add the following to your `Cargo.toml` file:
+
+```toml
+[depedencies]
+irkle = "0.1"
+```
