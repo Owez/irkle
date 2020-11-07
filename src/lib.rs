@@ -23,8 +23,9 @@
 use blake3::{self, Hash};
 use std::rc::Rc;
 
-/// Trait to easily retreive a hash, no matter the [NodeType]
-pub trait HasHash {
+/// Trait for running methods on any abstract kind of node, such as hash verification
+/// or just getting the hash
+pub trait NodeMethod {
     /// Gets the [blake3]-based [Hash] for trait implementation, just call on any
     /// [Node], [Data] or [NodeType] like so: `item.get_hash()`. Typically all
     /// this method will do is get the `self.hash` but this can be used to adapt
@@ -95,7 +96,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
     }
 }
 
-impl<T: AsRef<[u8]>> HasHash for Tree<T> {
+impl<T: AsRef<[u8]>> NodeMethod for Tree<T> {
     fn get_hash(&self) -> Hash {
         match &self.inner {
             NodeType::Node(node) => node.hash,
@@ -135,7 +136,7 @@ impl<T: AsRef<[u8]>> Node<T> {
     }
 }
 
-impl<T: AsRef<[u8]>> HasHash for Node<T> {
+impl<T: AsRef<[u8]>> NodeMethod for Node<T> {
     fn get_hash(&self) -> Hash {
         self.hash
     }
@@ -160,7 +161,7 @@ impl<T: AsRef<[u8]>> Data<T> {
     }
 }
 
-impl<T: AsRef<[u8]>> HasHash for Data<T> {
+impl<T: AsRef<[u8]>> NodeMethod for Data<T> {
     fn get_hash(&self) -> Hash {
         self.hash
     }
@@ -173,7 +174,7 @@ pub enum NodeType<T: AsRef<[u8]>> {
     Data(Data<T>),
 }
 
-impl<T: AsRef<[u8]>> HasHash for NodeType<T> {
+impl<T: AsRef<[u8]>> NodeMethod for NodeType<T> {
     fn get_hash(&self) -> Hash {
         match self {
             NodeType::Node(inner) => inner.hash,
