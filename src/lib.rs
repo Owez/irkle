@@ -1,5 +1,5 @@
 //! A [BLAKE3](https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3)-based
-//! merkle (hash) tree implementation for superfast trees
+//! merkle (hash) tree implementation for superfast trees ⚡
 
 use blake3::{self, Hash};
 use std::rc::Rc;
@@ -18,7 +18,7 @@ pub trait HasHash {
 /// # Example
 ///
 /// ```rs
-/// use magirkle::Tree;
+/// use irkle::Tree;
 ///
 /// fn main() {
 ///     println!("{:#?}", Tree::new(vec!["hello", "there"]));
