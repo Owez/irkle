@@ -13,26 +13,6 @@ pub trait HasHash {
     fn get_hash(&self) -> Hash;
 }
 
-/// Self-recursive function which makes many [Node]s, resulting in a final, single
-/// [Node] containing all data below
-fn make_middle_nodes<T: AsRef<[u8]>>(children_nodes: Vec<Node<T>>) -> Node<T> {
-    let mut nodes = vec![];
-    let mut node_buf = None;
-
-    for child_node in children_nodes {
-        match node_buf {
-            Some(_) => nodes.push(Node::new(node_buf.take().unwrap(), child_node)),
-            None => node_buf = Some(child_node),
-        }
-    }
-
-    if nodes.len() == 1 {
-        nodes.pop().unwrap()
-    } else {
-        make_middle_nodes(nodes)
-    }
-}
-
 /// A merkle tree
 
 /// # Example
@@ -46,41 +26,58 @@ fn make_middle_nodes<T: AsRef<[u8]>>(children_nodes: Vec<Node<T>>) -> Node<T> {
 /// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct Tree<T: AsRef<[u8]>> {
-    /// Type of node contained inside the tree
+    /// Type of node contained inside the tree or represents an empty tree
     pub inner: NodeType<T>,
 }
 
 impl<T: AsRef<[u8]>> Tree<T> {
     /// Creates a new [Tree] based off of data supplied in `data`.
     pub fn new<D: IntoIterator<Item = T>>(datapoints: D) -> Self {
-        let data_nodes = datapoints.into_iter().map(|data| Data::new(data));
+        let mut data_nodes: Vec<Data<T>> = datapoints.into_iter().map(|d| Data::new(d)).collect();
 
-        let mut bottom_nodes = vec![];
-        let mut data_node_buf = None;
+        match data_nodes.len() {
+            0 => panic!("Tree was given no datapoints and a merkle tree cannot be empty!"),
+            1 => {
+                return Self {
+                    inner: NodeType::Data(data_nodes.remove(0)),
+                }
+            }
+            _ => (),
+        }
 
-        for data_node in data_nodes {
-            match data_node_buf {
-                Some(_) => bottom_nodes.push(Node::new(data_node_buf.take().unwrap(), data_node)),
-                None => data_node_buf = Some(data_node),
+        /// Makes all levels of new nodes from given originating [NodeType]s
+        fn generate_nodes<T: AsRef<[u8]>, N: Into<NodeType<T>>>(node_types: Vec<N>) -> NodeType<T> {
+            let mut output: Vec<NodeType<T>> = vec![];
+            let mut left_buf: Option<NodeType<T>> = None;
+
+            for node_type in node_types {
+                match left_buf {
+                    Some(_) => {
+                        output.push(Node::new(left_buf.take().unwrap(), node_type.into()).into())
+                    }
+                    None => left_buf = Some(node_type.into()),
+                }
+            }
+
+            if left_buf.is_some() {
+                output.push(left_buf.unwrap())
+            }
+
+            if output.len() == 1 {
+                output.remove(0)
+            } else {
+                generate_nodes(output)
             }
         }
 
-        if bottom_nodes.len() == 0 && data_node_buf.is_some() {
-            return Self {
-                inner: NodeType::Data(data_node_buf.take().unwrap()),
-            };
-        }
-
-        // TODO: odd numbers
-        // TODO: fix two datatypes
-
         Self {
-            inner: NodeType::Node(make_middle_nodes(bottom_nodes)),
+            inner: generate_nodes(data_nodes),
         }
     }
+}
 
-    /// Gets the hash for [Tree], stored in `inner.hash` typically
-    pub fn hash(&self) -> Hash {
+impl<T: AsRef<[u8]>> HasHash for Tree<T> {
+    fn get_hash(&self) -> Hash {
         match &self.inner {
             NodeType::Node(node) => node.hash,
             NodeType::Data(node) => node.hash,
