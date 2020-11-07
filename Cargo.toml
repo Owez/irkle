@@ -4,6 +4,8 @@ description = "A [blake3](https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BL
 version = "0.1.0"
 repository = "https://github.com/Owez/irkle"
 license = "MIT"
+readme = "README.md"
+keywords = ["merkle-tree", "hash-tree", "blockchain", "scm", "package-management"]
 authors = ["Owez <root@ogriffiths.com>"]
 edition = "2018"
 
