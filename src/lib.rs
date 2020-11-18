@@ -25,12 +25,20 @@ use std::rc::Rc;
 
 /// Trait for running methods on any abstract kind of node, such as hash verification
 /// or just getting the hash
-pub trait NodeMethod {
+pub trait NodeMethod<T: AsRef<[u8]>> {
     /// Gets the [blake3]-based [Hash] for trait implementation, just call on any
     /// [Node], [Data] or [NodeType] like so: `item.get_hash()`. Typically all
     /// this method will do is get the `self.hash` but this can be used to adapt
     /// a broader [NodeType]
     fn get_hash(&self) -> Hash;
+
+    /// Verifies the node down through recursion, providing a high-level
+    /// checking/verification method
+    ///
+    /// If this fails, it will return the expected hash and the found node where
+    /// this hash failed at (which contains the bad hash in turn); this is
+    /// formatted as `(expected_hash, found_node)`
+    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)>;
 }
 
 /// A merkle tree
@@ -96,12 +104,16 @@ impl<T: AsRef<[u8]>> Tree<T> {
     }
 }
 
-impl<T: AsRef<[u8]>> NodeMethod for Tree<T> {
+impl<T: AsRef<[u8]>> NodeMethod<T> for Tree<T> {
     fn get_hash(&self) -> Hash {
         match &self.inner {
             NodeType::Node(node) => node.hash,
             NodeType::Data(node) => node.hash,
         }
+    }
+
+    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)> {
+        unimplemented!()
     }
 }
 
@@ -136,9 +148,13 @@ impl<T: AsRef<[u8]>> Node<T> {
     }
 }
 
-impl<T: AsRef<[u8]>> NodeMethod for Node<T> {
+impl<T: AsRef<[u8]>> NodeMethod<T> for Node<T> {
     fn get_hash(&self) -> Hash {
         self.hash
+    }
+
+    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)> {
+        unimplemented!()
     }
 }
 
@@ -161,9 +177,13 @@ impl<T: AsRef<[u8]>> Data<T> {
     }
 }
 
-impl<T: AsRef<[u8]>> NodeMethod for Data<T> {
+impl<T: AsRef<[u8]>> NodeMethod<T> for Data<T> {
     fn get_hash(&self) -> Hash {
         self.hash
+    }
+
+    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)> {
+        unimplemented!()
     }
 }
 
@@ -174,12 +194,16 @@ pub enum NodeType<T: AsRef<[u8]>> {
     Data(Data<T>),
 }
 
-impl<T: AsRef<[u8]>> NodeMethod for NodeType<T> {
+impl<T: AsRef<[u8]>> NodeMethod<T> for NodeType<T> {
     fn get_hash(&self) -> Hash {
         match self {
             NodeType::Node(inner) => inner.hash,
             NodeType::Data(inner) => inner.hash,
         }
+    }
+
+    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)> {
+        unimplemented!()
     }
 }
 
@@ -293,4 +317,6 @@ mod tests {
 
         assert_eq!(data.get_hash(), blake3::hash(input.as_bytes()));
     }
+
+    // TODO: verification tests
 }
