@@ -87,9 +87,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
                 }
             }
 
-            if left_buf.is_some() {
-                output.push(left_buf.unwrap())
-            }
+            output.extend(left_buf);
 
             if output.len() == 1 {
                 output.remove(0)
