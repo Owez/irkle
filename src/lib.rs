@@ -229,6 +229,8 @@ impl<T: AsRef<[u8]>> From<Node<T>> for NodeType<T> {
 mod tests {
     use super::*;
 
+    const TEST_DATA: &str = "hello";
+
     #[test]
     fn tree_new_two() {
         assert_eq!(
@@ -324,5 +326,14 @@ mod tests {
         Tree::new(strings);
     }
 
-    // TODO: verification tests
+    #[test]
+    fn data_verification() {
+        let mut test_struct: Data<&str> = Data::new(TEST_DATA);
+        assert!(test_struct.verify().is_ok());
+
+        test_struct.hash = blake3::hash(b"fknrejnfjrenf");
+        assert!(test_struct.verify().is_err());
+    }
+
+    // TODO: more verification tests
 }
