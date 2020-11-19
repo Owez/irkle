@@ -110,7 +110,7 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for Tree<T> {
     }
 
     fn verify(&self) -> Result<(), (Hash, Hash)> {
-        unimplemented!()
+        self.inner.verify()
     }
 }
 
@@ -151,7 +151,22 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for Node<T> {
     }
 
     fn verify(&self) -> Result<(), (Hash, Hash)> {
-        unimplemented!()
+        self.left.verify()?;
+        self.right.verify()?;
+
+        let found_hash = blake3::hash(
+            &[
+                &self.left.get_hash().as_bytes()[..],
+                &self.right.get_hash().as_bytes()[..],
+            ]
+            .concat(),
+        );
+
+        if self.hash == found_hash {
+            Ok(())
+        } else {
+            Err((found_hash, self.hash))
+        }
     }
 }
 
@@ -206,7 +221,10 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for NodeType<T> {
     }
 
     fn verify(&self) -> Result<(), (Hash, Hash)> {
-        unimplemented!()
+        match self {
+            NodeType::Node(inner) => inner.verify(),
+            NodeType::Data(inner) => inner.verify(),
+        }
     }
 }
 
@@ -287,14 +305,12 @@ mod tests {
     #[test]
     fn node_to_node_type() {
         let inner: Node<&str> = Node::new("", "").into();
-
         assert_eq!(NodeType::from(inner.clone()), NodeType::Node(inner))
     }
 
     #[test]
     fn data_to_node_type() {
         let inner: Data<&str> = Data::new("");
-
         assert_eq!(NodeType::from(inner.clone()), NodeType::Data(inner))
     }
 
@@ -317,7 +333,6 @@ mod tests {
     #[test]
     fn data_get_hash() {
         let data: Data<&str> = Data::new(TEST_DATA);
-
         assert_eq!(data.get_hash(), blake3::hash(TEST_DATA.as_bytes()));
     }
 
