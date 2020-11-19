@@ -316,5 +316,13 @@ mod tests {
         assert_eq!(data.get_hash(), blake3::hash(input.as_bytes()));
     }
 
+    #[test]
+    #[should_panic]
+    fn empty_tree() {
+        let strings: Vec<String> = vec![];
+
+        Tree::new(strings);
+    }
+
     // TODO: verification tests
 }
