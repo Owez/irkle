@@ -295,15 +295,14 @@ mod tests {
 
     #[test]
     fn node_get_hash() {
-        let input = "hi";
-        let node: Node<&str> = Node::new(input, input);
+        let node: Node<&str> = Node::new(TEST_DATA, TEST_DATA);
 
         assert_eq!(
             node.get_hash(),
             blake3::hash(
                 &[
-                    &blake3::hash(input.as_bytes()).as_bytes()[..],
-                    &blake3::hash(input.as_bytes()).as_bytes()[..]
+                    &blake3::hash(TEST_DATA.as_bytes()).as_bytes()[..],
+                    &blake3::hash(TEST_DATA.as_bytes()).as_bytes()[..]
                 ]
                 .concat()
             )
@@ -312,17 +311,15 @@ mod tests {
 
     #[test]
     fn data_get_hash() {
-        let input = "hi";
-        let data: Data<&str> = Data::new(input);
+        let data: Data<&str> = Data::new(TEST_DATA);
 
-        assert_eq!(data.get_hash(), blake3::hash(input.as_bytes()));
+        assert_eq!(data.get_hash(), blake3::hash(TEST_DATA.as_bytes()));
     }
 
     #[test]
     #[should_panic]
     fn empty_tree() {
         let strings: Vec<String> = vec![];
-
         Tree::new(strings);
     }
 
