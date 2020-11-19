@@ -58,45 +58,45 @@ pub struct Tree<T: AsRef<[u8]>> {
 }
 
 impl<T: AsRef<[u8]>> Tree<T> {
-    /// Creates a new [Tree] based off of data supplied in `data`.
+    /// Creates a new [Tree] based off of data supplied in `data`
     pub fn new<D: IntoIterator<Item = T>>(datapoints: D) -> Self {
         let mut data_nodes: Vec<Data<T>> = datapoints.into_iter().map(|d| Data::new(d)).collect();
 
         match data_nodes.len() {
             0 => panic!("Tree was given no datapoints and a merkle tree cannot be empty!"),
-            1 => {
-                return Self {
-                    inner: NodeType::Data(data_nodes.remove(0)),
-                }
-            }
-            _ => (),
-        }
+            1 => Self {
+                inner: NodeType::Data(data_nodes.remove(0)),
+            },
+            _ => {
+                /// Makes all levels of new nodes recursively from given
+                /// originating [NodeType]s
+                fn generate_nodes<T: AsRef<[u8]>, N: Into<NodeType<T>>>(
+                    node_types: Vec<N>,
+                ) -> NodeType<T> {
+                    let mut output: Vec<NodeType<T>> = vec![];
+                    let mut left_buf: Option<NodeType<T>> = None;
 
-        /// Makes all levels of new nodes from given originating [NodeType]s
-        fn generate_nodes<T: AsRef<[u8]>, N: Into<NodeType<T>>>(node_types: Vec<N>) -> NodeType<T> {
-            let mut output: Vec<NodeType<T>> = vec![];
-            let mut left_buf: Option<NodeType<T>> = None;
-
-            for node_type in node_types {
-                match left_buf {
-                    Some(_) => {
-                        output.push(Node::new(left_buf.take().unwrap(), node_type.into()).into())
+                    for node_type in node_types {
+                        match left_buf {
+                            Some(_) => output
+                                .push(Node::new(left_buf.take().unwrap(), node_type.into()).into()),
+                            None => left_buf = Some(node_type.into()),
+                        }
                     }
-                    None => left_buf = Some(node_type.into()),
+
+                    output.extend(left_buf);
+
+                    if output.len() == 1 {
+                        output.remove(0)
+                    } else {
+                        generate_nodes(output)
+                    }
+                }
+
+                Self {
+                    inner: generate_nodes(data_nodes),
                 }
             }
-
-            output.extend(left_buf);
-
-            if output.len() == 1 {
-                output.remove(0)
-            } else {
-                generate_nodes(output)
-            }
-        }
-
-        Self {
-            inner: generate_nodes(data_nodes),
         }
     }
 }
