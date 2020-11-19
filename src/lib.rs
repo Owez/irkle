@@ -35,10 +35,9 @@ pub trait NodeMethod<T: AsRef<[u8]>> {
     /// Verifies the node down through recursion, providing a high-level
     /// checking/verification method
     ///
-    /// If this fails, it will return the expected hash and the found node where
-    /// this hash failed at (which contains the bad hash in turn); this is
-    /// formatted as `(expected_hash, found_node)`
-    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)>;
+    /// If this fails, it will return the expected hash and the found hash where
+    /// this hash failed at; this is formatted as `(expected_hash, found_node)`
+    fn verify(&self) -> Result<(), (Hash, Hash)>;
 }
 
 /// A merkle tree
@@ -110,7 +109,7 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for Tree<T> {
         }
     }
 
-    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)> {
+    fn verify(&self) -> Result<(), (Hash, Hash)> {
         unimplemented!()
     }
 }
@@ -151,7 +150,7 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for Node<T> {
         self.hash
     }
 
-    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)> {
+    fn verify(&self) -> Result<(), (Hash, Hash)> {
         unimplemented!()
     }
 }
@@ -180,8 +179,14 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for Data<T> {
         self.hash
     }
 
-    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)> {
-        unimplemented!()
+    fn verify(&self) -> Result<(), (Hash, Hash)> {
+        let found_hash = blake3::hash(self.data.as_ref());
+
+        if self.hash == found_hash {
+            Ok(())
+        } else {
+            Err((found_hash, self.hash))
+        }
     }
 }
 
@@ -200,7 +205,7 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for NodeType<T> {
         }
     }
 
-    fn verify(&self) -> Result<(), (Hash, &NodeType<T>)> {
+    fn verify(&self) -> Result<(), (Hash, Hash)> {
         unimplemented!()
     }
 }
