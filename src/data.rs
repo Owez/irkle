@@ -1,7 +1,16 @@
 use crate::NodeMethod;
 use blake3::Hash;
 
-/// The final datablock, containing the data needed
+/// The final datablock, containing a single block of data a [Tree] was created for
+///
+/// # Verification
+///
+/// This structure implements the [NodeMethod] trait and can therefore be
+/// verified using the `.verify()` method. If ran on this particular structure,
+/// it will simply checksum the data and compare it to the hash on record.
+///
+/// You may want to check [Tree](crate::Tree)'s verification if you would like
+/// to verify a whole tree.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Data<T: AsRef<[u8]>> {
     pub hash: Hash,

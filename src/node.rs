@@ -12,8 +12,18 @@ fn hash_lr<T: AsRef<[u8]>>(left: &NodeType<T>, right: &NodeType<T>) -> Hash {
     hasher.finalize()
 }
 
-/// A middle-layer node, containing two nodes underneith that is of some [NodeType]
+/// A middle-layer node, containing two nodes underneith that is of a [NodeType]
 /// variation
+///
+/// # Verification
+///
+/// This structure implements the [NodeMethod] trait and can therefore be
+/// verified using the `.verify()` method. If ran on this particular structure,
+/// it will recurse into both the `left` and `right` [NodeType]'s and check them
+/// for any inconsistancies.
+///
+/// You may want to check [Tree](crate::Tree)'s verification if you would like
+/// to verify a whole tree.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Node<T: AsRef<[u8]>> {
     pub hash: Hash,
@@ -22,7 +32,7 @@ pub struct Node<T: AsRef<[u8]>> {
 }
 
 impl<T: AsRef<[u8]>> Node<T> {
-    /// Creates a new [Node] from nodes below
+    /// Creates a new [Node] from any [NodeType]s below
     pub fn new<N: Into<NodeType<T>>>(left: N, right: N) -> Self {
         let left_into = left.into();
         let right_into = right.into();

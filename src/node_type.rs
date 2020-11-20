@@ -1,7 +1,19 @@
 use crate::{Data, Node, NodeMethod};
 use blake3::Hash;
 
-/// Types of node that may be children
+/// Types of node that may be children of either a [Tree] structure or alternatively,
+/// a [Node] structure
+///
+/// # Verification
+///
+/// This structure implements the [NodeMethod] trait and can therefore be
+/// verified using the `.verify()` method. If ran on this particular structure,
+/// it will simply call the same method on the [Node] and [Data] which also
+/// implement this trait (which contains the previously mentioned `.verify()`
+/// method).
+///
+/// You may want to check [Tree](crate::Tree)'s verification if you would like
+/// to verify a whole tree.
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeType<T: AsRef<[u8]>> {
     Node(Node<T>),

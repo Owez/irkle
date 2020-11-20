@@ -1,7 +1,7 @@
 use crate::{Data, Node, NodeMethod, NodeType};
 use blake3::Hash;
 
-/// A merkle tree
+/// A merkle tree -- *More documentation coming soon..*
 ///
 /// # Example
 ///
