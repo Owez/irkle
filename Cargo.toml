@@ -1,7 +1,7 @@
 [package]
 name = "irkle"
-description = "A [blake3](https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3)-based merkle (hash) tree implementation for superfast trees ⚡"
-version = "0.1.0"
+description = "A blake3-based merkle (hash) tree implementation for superfast trees ⚡"
+version = "0.1.0-pre.1"
 repository = "https://github.com/Owez/irkle"
 license = "MIT"
 readme = "README.md"
@@ -9,5 +9,5 @@ keywords = ["merkle-tree", "hash-tree", "blockchain", "scm", "package-management
 authors = ["Owez <root@ogriffiths.com>"]
 edition = "2018"
 
-[dependencies]
-blake3 = "0.3.7"
+[dependencies.blake3]
+version = "0.3.7"
