@@ -19,6 +19,15 @@
 //! [depedencies]
 //! irkle = "0.1"
 //! ```
+//!
+//! ## Current status
+//!
+//! Creation and verification of merkle trees have been implemented and are fast,
+//! but could be greatly improved with the help of parralisation as currently this
+//! library is single-threaded.
+//!
+//! This is the tracking issue for the multi-threading of irkle:
+//! https://github.com/Owez/irkle/issues/1
 
 use blake3::{self, Hash};
 use std::rc::Rc;
