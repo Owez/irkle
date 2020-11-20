@@ -129,16 +129,8 @@ impl<T: AsRef<[u8]>> Node<T> {
         let left_into = left.into();
         let right_into = right.into();
 
-        let hash = blake3::hash(
-            &[
-                &left_into.get_hash().as_bytes()[..],
-                &right_into.get_hash().as_bytes()[..],
-            ]
-            .concat(),
-        );
-
         Self {
-            hash,
+            hash: hash_lr(&left_into, &right_into),
             left: Rc::new(left_into),
             right: Rc::new(right_into),
         }
@@ -154,13 +146,7 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for Node<T> {
         self.left.verify()?;
         self.right.verify()?;
 
-        let found_hash = blake3::hash(
-            &[
-                &self.left.get_hash().as_bytes()[..],
-                &self.right.get_hash().as_bytes()[..],
-            ]
-            .concat(),
-        );
+        let found_hash = hash_lr(&self.left, &self.right);
 
         if self.hash == found_hash {
             Ok(())
@@ -248,11 +234,38 @@ impl<T: AsRef<[u8]>> From<Node<T>> for NodeType<T> {
     }
 }
 
+/// Hashes left and right sides of a [NodeType], used for middle [Node]s
+fn hash_lr<T: AsRef<[u8]>>(left: &NodeType<T>, right: &NodeType<T>) -> Hash {
+    let mut hasher = blake3::Hasher::new();
+
+    hasher.update(left.get_hash().as_bytes());
+    hasher.update(right.get_hash().as_bytes());
+
+    hasher.finalize()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     const TEST_DATA: &str = "hello";
+
+    #[test]
+    fn hash_lr_check() {
+        let data: Data<&str> = Data::new(TEST_DATA);
+        let expected = blake3::hash(
+            &[
+                &data.get_hash().as_bytes()[..],
+                &data.get_hash().as_bytes()[..],
+            ]
+            .concat(),
+        );
+
+        assert_eq!(
+            hash_lr(&NodeType::from(data.clone()), &NodeType::from(data)),
+            expected
+        )
+    }
 
     #[test]
     fn tree_new_two() {
