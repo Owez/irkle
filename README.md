@@ -1,7 +1,7 @@
 # Irkle
 
-![Tests](https://github.com/Owez/irkle/workflows/Tests/badge.svg)
-![Documentation](https://docs.rs/irkle/badge.svg)
+[![Tests](https://github.com/Owez/irkle/workflows/Tests/badge.svg)](https://github.com/Owez/irkle/actions?query=workflow%3ATests)
+[![Docs](https://docs.rs/irkle/badge.svg)](https://docs.rs/irkle)
 
 A [blake3](https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3)-based merkle (hash) tree implementation for superfast trees ⚡ 
 
