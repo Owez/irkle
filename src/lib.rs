@@ -247,8 +247,23 @@ fn hash_lr<T: AsRef<[u8]>>(left: &NodeType<T>, right: &NodeType<T>) -> Hash {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
+    /// Test data to use in testing
     const TEST_DATA: &str = "hello";
+
+    /// Pseudo-random `u128` generator, used for minor fuzzing tests
+    pub fn randish_128() -> u128 {
+        let mut seed = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_nanos();
+
+        seed = seed << 13;
+        seed = seed >> 4;
+
+        seed << 5
+    }
 
     #[test]
     fn hash_lr_check() {
@@ -313,6 +328,19 @@ mod tests {
             Tree::new(vec!["hello", "there", "cool", "person"]),
             Tree { inner: node }
         )
+    }
+
+    #[test]
+    fn big_tree() {
+        let mut data = vec![];
+
+        for _ in 0..(randish_128() / 100000000000000000) {
+            data.push(randish_128().to_be_bytes())
+        }
+
+        let tree: Tree<[u8; 16]> = Tree::new(data);
+
+        assert_eq!(tree.verify(), Ok(()))
     }
 
     #[test]
