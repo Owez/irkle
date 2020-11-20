@@ -27,4 +27,4 @@ irkle = "0.1"
 
 Creation and verification of merkle trees have been implemented and are fast, but could be greatly improved with the help of parallelization as currently this library is single-threaded.
 
-This is the tracking issue for the multi-threading of irkle: https://github.com/Owez/irkle/issues/1
+This is the tracking issue for the multi-threading of irkle: [`https://github.com/Owez/irkle/issues/1`](https://github.com/Owez/irkle/issues/1)

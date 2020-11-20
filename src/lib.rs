@@ -27,7 +27,7 @@
 //! library is single-threaded.
 //!
 //! This is the tracking issue for the multi-threading of irkle:
-//! https://github.com/Owez/irkle/issues/1
+//! [`https://github.com/Owez/irkle/issues/1`](https://github.com/Owez/irkle/issues/1)
 
 mod data;
 mod node;
