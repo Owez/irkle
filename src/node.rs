@@ -108,4 +108,29 @@ mod tests {
             )
         );
     }
+
+    #[test]
+    fn verify_ok() {
+        let data: Data<&str> = Data::new(TEST_DATA);
+        let node = Node::new(data.clone(), data);
+        assert!(node.verify().is_ok());
+    }
+
+    #[test]
+    fn verify_bad() {
+        let data: Data<&str> = Data::new(TEST_DATA);
+        let mut node = Node::new(data.clone(), data);
+
+        let bad = blake3::hash(b"bad");
+
+        match node.left.as_mut() {
+            NodeType::Data(d) => d.hash = bad,
+            _ => panic!(),
+        }
+
+        assert_eq!(
+            node.verify(),
+            Err((blake3::hash(TEST_DATA.as_bytes()), bad))
+        );
+    }
 }
