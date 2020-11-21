@@ -1,6 +1,28 @@
 use crate::{Data, Node, NodeMethod, NodeType};
 use blake3::Hash;
 
+/// Makes all levels of new nodes recursively from given
+/// originating [NodeType]s
+fn generate_nodes<T: AsRef<[u8]>, N: Into<NodeType<T>>>(node_types: Vec<N>) -> NodeType<T> {
+    let mut output: Vec<NodeType<T>> = vec![];
+    let mut left_buf: Option<NodeType<T>> = None;
+
+    for node_type in node_types {
+        match left_buf {
+            Some(_) => output.push(Node::new(left_buf.take().unwrap(), node_type.into()).into()),
+            None => left_buf = Some(node_type.into()),
+        }
+    }
+
+    output.extend(left_buf);
+
+    if output.len() == 1 {
+        output.remove(0)
+    } else {
+        generate_nodes(output)
+    }
+}
+
 /// A merkle tree -- *More documentation coming soon..*
 ///
 /// # Example
@@ -28,36 +50,9 @@ impl<T: AsRef<[u8]>> Tree<T> {
             1 => Self {
                 inner: NodeType::Data(data_nodes.remove(0)),
             },
-            _ => {
-                /// Makes all levels of new nodes recursively from given
-                /// originating [NodeType]s
-                fn generate_nodes<T: AsRef<[u8]>, N: Into<NodeType<T>>>(
-                    node_types: Vec<N>,
-                ) -> NodeType<T> {
-                    let mut output: Vec<NodeType<T>> = vec![];
-                    let mut left_buf: Option<NodeType<T>> = None;
-
-                    for node_type in node_types {
-                        match left_buf {
-                            Some(_) => output
-                                .push(Node::new(left_buf.take().unwrap(), node_type.into()).into()),
-                            None => left_buf = Some(node_type.into()),
-                        }
-                    }
-
-                    output.extend(left_buf);
-
-                    if output.len() == 1 {
-                        output.remove(0)
-                    } else {
-                        generate_nodes(output)
-                    }
-                }
-
-                Self {
-                    inner: generate_nodes(data_nodes),
-                }
-            }
+            _ => Self {
+                inner: generate_nodes(data_nodes),
+            },
         }
     }
 }
