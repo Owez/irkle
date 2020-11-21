@@ -73,7 +73,6 @@ impl<T: AsRef<[u8]>> NodeMethod<T> for Tree<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::rc::Rc;
     use std::time::{SystemTime, UNIX_EPOCH};
 
     /// Pseudo-random `u128` generator, used for minor fuzzing tests
@@ -127,8 +126,8 @@ mod tests {
 
         let node = NodeType::Node(Node {
             hash,
-            left: Rc::new(NodeType::Node(bottom_left)),
-            right: Rc::new(NodeType::Node(bottom_right)),
+            left: NodeType::Node(bottom_left).into(),
+            right: NodeType::Node(bottom_right).into(),
         });
 
         assert_eq!(
@@ -138,16 +137,18 @@ mod tests {
     }
 
     #[test]
-    fn big() {
-        let mut data = vec![];
+    fn new_big_fuzz() {
+        for _ in 0..100 {
+            let mut data = vec![];
 
-        for _ in 0..(randish_128() / 100000000000000000) {
-            data.push(randish_128().to_be_bytes())
+            for _ in 0..(randish_128() / 10000000000000000000) {
+                data.push(randish_128().to_be_bytes())
+            }
+
+            let tree: Tree<[u8; 16]> = Tree::new(data.clone());
+
+            assert!(tree.verify().is_ok());
         }
-
-        let tree: Tree<[u8; 16]> = Tree::new(data);
-
-        assert_eq!(tree.verify(), Ok(()))
     }
 
     #[test]

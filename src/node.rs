@@ -1,6 +1,5 @@
 use crate::{NodeMethod, NodeType};
 use blake3::Hash;
-use std::rc::Rc;
 
 /// Hashes left and right sides of a [NodeType], used for middle [Node]s
 fn hash_lr<T: AsRef<[u8]>>(left: &NodeType<T>, right: &NodeType<T>) -> Hash {
@@ -27,8 +26,8 @@ fn hash_lr<T: AsRef<[u8]>>(left: &NodeType<T>, right: &NodeType<T>) -> Hash {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Node<T: AsRef<[u8]>> {
     pub hash: Hash,
-    pub left: Rc<NodeType<T>>,
-    pub right: Rc<NodeType<T>>,
+    pub left: Box<NodeType<T>>,
+    pub right: Box<NodeType<T>>,
 }
 
 impl<T: AsRef<[u8]>> Node<T> {
@@ -39,8 +38,8 @@ impl<T: AsRef<[u8]>> Node<T> {
 
         Self {
             hash: hash_lr(&left_into, &right_into),
-            left: Rc::new(left_into),
-            right: Rc::new(right_into),
+            left: Box::new(left_into),
+            right: Box::new(right_into),
         }
     }
 }
