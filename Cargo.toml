@@ -1,6 +1,6 @@
 [package]
 name = "irkle"
-description = "A blake3-based merkle (hash) tree implementation for superfast trees ⚡"
+description = "A merkle tree implementation based upon the blake3 hash and binary tree arrays for superfast trees ⚡"
 version = "0.1.0-pre.1"
 repository = "https://github.com/Owez/irkle"
 license = "MIT"
