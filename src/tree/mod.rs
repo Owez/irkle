@@ -1,4 +1,4 @@
-//! Contains [Irkle] and related implementations, see item-level documentation for
+//! Contains [Tree] and related implementations, see item-level documentation for
 //! more information
 
 use crate::Node;
