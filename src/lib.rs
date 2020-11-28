@@ -2,12 +2,12 @@
 //! hash and [binary tree arrays](https://en.wikipedia.org/wiki/Binary_tree#Arrays)
 //! for superfast trees ⚡
 //!
-//! Please travel to the primary [Irkle] structure of this library for more
+//! Please travel to the primary [Tree] structure of this library for more
 //! documentation then this module-level infomation can provide, as it is the main
 //! implemented utility that this library aims to provide.
 
-mod irkle;
+mod tree;
 mod node;
 
-pub use irkle::Irkle;
+pub use tree::Tree;
 pub use node::Node;

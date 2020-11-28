@@ -1,4 +1,5 @@
-//! Contains [Irkle], see item-level documentation for more information
+//! Contains [Irkle] and related implementations, see item-level documentation for
+//! more information
 
 use crate::Node;
 use std::rc::Weak;
@@ -42,11 +43,11 @@ use std::rc::Weak;
 ///
 /// This data structure may be put to use without needing to be transformed into
 /// something else in order to store the data blocks.
-pub struct Irkle<T: AsRef<[u8]>> {
+pub struct Tree<T: AsRef<[u8]>> {
     /// Inner array used as the main storage device for the tree
     pub inner: Vec<Node<T>>,
 
-    /// A list of referenced towards data blocks stored in [Irkle::inner], used
+    /// A list of referenced towards data blocks stored in [Tree::inner], used
     /// for quick searching and to allow better usability of the raw data
     ///
     /// All [Node]s of this vector are guaranteed to have an [Option::Some] value
@@ -54,7 +55,7 @@ pub struct Irkle<T: AsRef<[u8]>> {
     pub data: Vec<Weak<Node<T>>>,
 }
 
-/// Tests for [Irkle]-related operations
+/// Tests for [Tree]-related operations
 #[cfg(test)]
 mod tests {
     use super::*;

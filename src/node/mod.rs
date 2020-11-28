@@ -1,4 +1,5 @@
-//! Contains [Node], see item-level documentation for more information
+//! Contains [Node] and related implementations, see item-level documentation for
+//! more information
 
 use blake3;
 
