@@ -15,5 +15,13 @@ Simply add the following to your `Cargo.toml` file:
 
 ```toml
 [depedencies]
-irkle = "0.1" # Note: not released just yet!
+irkle = "0.1" # NOTE: not released just yet!
 ```
+
+## Objectives
+
+This project has explicit objectives that are stuck to whilst developing and maintaining:
+
+- __High preformance__
+- Heavily documented functions, should read as semi-documentation, semi-tutorial on merkle trees
+- Low-as-possible dependency count, only current dependency is the `blake3` hasing library
