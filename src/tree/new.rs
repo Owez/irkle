@@ -8,16 +8,3 @@ impl<T: AsRef<[u8]>> Tree<T> {
         unimplemented!()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::Node;
-
-    // #[test]
-    // fn single_data() {
-    //     let data_node = Node::from_data("hello there!");
-
-    //     assert_eq!(Tree::new(vec![data_node.clone()]).inner, vec![data_node])
-    // }
-}
