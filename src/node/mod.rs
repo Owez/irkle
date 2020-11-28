@@ -7,7 +7,8 @@ pub use new::*;
 
 use blake3;
 
-/// A single node on the main irkle [Tree] which maps to a [blake3](https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3)-based
+/// A single node on the main irkle [Tree](crate::Tree) which maps to a
+/// [blake3](https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE3)-based
 /// hash and optionally some data
 ///
 /// If this does contain some data, this would now be considered a "data block".
