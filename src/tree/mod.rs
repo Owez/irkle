@@ -1,6 +1,10 @@
 //! Contains [Tree] and related implementations, see item-level documentation for
 //! more information
 
+mod new;
+
+pub use new::*;
+
 use crate::Node;
 use std::rc::Weak;
 
@@ -43,6 +47,7 @@ use std::rc::Weak;
 ///
 /// This data structure may be put to use without needing to be transformed into
 /// something else in order to store the data blocks.
+#[derive(Debug, Clone)]
 pub struct Tree<T: AsRef<[u8]>> {
     /// Inner array used as the main storage device for the tree
     pub inner: Vec<Node<T>>,
@@ -53,12 +58,4 @@ pub struct Tree<T: AsRef<[u8]>> {
     /// All [Node]s of this vector are guaranteed to have an [Option::Some] value
     /// for the [Node::data] element.
     pub data: Vec<Weak<Node<T>>>,
-}
-
-/// Tests for [Tree]-related operations
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // TODO: test
 }
