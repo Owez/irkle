@@ -6,8 +6,8 @@
 //! documentation then this module-level infomation can provide, as it is the main
 //! implemented utility that this library aims to provide.
 
-mod tree;
 mod node;
+mod tree;
 
-pub use tree::Tree;
 pub use node::Node;
+pub use tree::Tree;
