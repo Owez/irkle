@@ -49,6 +49,17 @@ mod tests {
                 hash: hash_lr(hash, hash),
                 data: None
             }
-        );
+        )
+    }
+
+    #[test]
+    fn simple_data() {
+        assert_eq!(
+            Node::new_data(TEST_DATA),
+            Node {
+                hash: blake3::hash(TEST_DATA),
+                data: Some(TEST_DATA)
+            }
+        )
     }
 }
