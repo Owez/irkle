@@ -2,8 +2,10 @@
 //! more information
 
 mod new;
+mod retrieval;
 
 pub use new::*;
+pub use retrieval::*;
 
 use crate::Node;
 use std::rc::Weak;
