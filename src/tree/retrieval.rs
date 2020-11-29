@@ -41,7 +41,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
 
     /// Returns a mutable reference to the left child of a given `ind` of a [Node]
     /// inside of the [Tree::inner] vector
-    pub fn left_of_mut(&self, ind: usize) -> Option<&Node<T>> {
+    pub fn left_of_mut(&mut self, ind: usize) -> Option<&mut Node<T>> {
         match self.inner.get(ind) {
             Some(n) => {
                 if n.data.is_some() {
@@ -51,7 +51,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
             None => (),
         }
 
-        self.inner.get(ind * 2 + 1)
+        self.inner.get_mut(ind * 2 + 1)
     }
 
     /// Returns a reference to the right child of a given `ind` of a [Node] inside of the
@@ -71,7 +71,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
 
     /// Returns a mutable reference to the right child of a given `ind` of a [Node]
     /// inside of the [Tree::inner] vector
-    pub fn right_of_mut(&self, ind: usize) -> Option<&Node<T>> {
+    pub fn right_of_mut(&mut self, ind: usize) -> Option<&mut Node<T>> {
         match self.inner.get(ind) {
             Some(n) => {
                 if n.data.is_some() {
@@ -81,7 +81,7 @@ impl<T: AsRef<[u8]>> Tree<T> {
             None => (),
         }
 
-        self.inner.get(ind * 2 + 2)
+        self.inner.get_mut(ind * 2 + 2)
     }
 }
 
@@ -130,5 +130,45 @@ mod tests {
         assert_eq!(tree.right_of(0), Some(&data_node));
         assert_eq!(tree.right_of(1), None);
         assert_eq!(tree.right_of(2), None);
+    }
+
+    #[test]
+    fn parent_mut() {
+        let hash = blake3::hash(TEST_DATA);
+
+        let mut hash_node = Node::new_leaf(hash, hash);
+        let data_node = Node::new_data(TEST_DATA);
+
+        let mut tree = Tree {
+            data: vec![],
+            inner: vec![hash_node.clone(), data_node.clone(), data_node.clone()],
+        };
+
+        assert_eq!(tree.parent_of_mut(0), None);
+        assert_eq!(tree.parent_of_mut(1), Some(&mut hash_node));
+        assert_eq!(tree.parent_of_mut(2), Some(&mut hash_node));
+    }
+
+    #[test]
+    fn children_mut() {
+        let hash = blake3::hash(TEST_DATA);
+
+        let hash_node = Node::new_leaf(hash, hash);
+        let mut data_node = Node::new_data(TEST_DATA);
+
+        let mut tree = Tree {
+            data: vec![],
+            inner: vec![hash_node.clone(), data_node.clone(), data_node.clone()],
+        };
+
+        // left of get
+        assert_eq!(tree.left_of_mut(0), Some(&mut data_node));
+        assert_eq!(tree.left_of_mut(1), None);
+        assert_eq!(tree.left_of_mut(2), None);
+
+        // right of get
+        assert_eq!(tree.right_of_mut(0), Some(&mut data_node));
+        assert_eq!(tree.right_of_mut(1), None);
+        assert_eq!(tree.right_of_mut(2), None);
     }
 }
