@@ -13,6 +13,23 @@ use std::rc::Weak;
 /// The primary tree used inside of irkle, uses an [array-based](https://en.wikipedia.org/wiki/Binary_tree#Arrays)
 /// method of storage
 ///
+/// # Examples
+///
+/// A simple tree being created:
+///
+/// ```rust
+/// use irkle::Tree;
+///
+/// fn main() {
+///     let data = vec!["foxtrot", "uniform", "charlie", "kilo"];
+///     let tree = Tree::new(data);
+///
+///     println!("{:?}", tree);
+/// }
+/// ```
+///
+/// ***More coming soon..***
+///
 /// # Tree structure
 ///
 /// Given a tree looking similar to the following:
