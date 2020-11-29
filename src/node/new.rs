@@ -31,12 +31,11 @@ impl<T: AsRef<[u8]>> Node<T> {
     }
 }
 
-/// Tests for [Node]-related operations
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    const TEST_DATA: &[u8] = b"Testing..";
+    const TEST_DATA: &[u8] = b"Hello world";
 
     #[test]
     fn simple_leaf() {
