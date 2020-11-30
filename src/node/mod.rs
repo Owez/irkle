@@ -21,9 +21,6 @@ pub struct Node<T: AsRef<[u8]>> {
 
     /// Enum which determines the type of the node and the data, if any, contained
     /// inside; see [NodeInner] for more information
-    ///
-    /// If this infomation is present (e.g. an [Option::Some] value), this node
-    /// is considered a data block and if not, it is assumed to be a leaf.
     pub inner: NodeInner<T>,
 }
 
