@@ -1,6 +1,6 @@
 //! Contains [Node] creation implementations
 
-use super::Node;
+use super::{Node, NodeInner};
 use blake3;
 
 /// Hashes left and right sides of a [NodeType], used for middle [Node]s
@@ -18,7 +18,7 @@ impl<T: AsRef<[u8]>> Node<T> {
     pub fn new_leaf(left: blake3::Hash, right: blake3::Hash) -> Self {
         Node {
             hash: hash_lr(left, right),
-            data: None,
+            inner: NodeInner::Leaf,
         }
     }
 
@@ -26,7 +26,7 @@ impl<T: AsRef<[u8]>> Node<T> {
     pub fn new_data(data: T) -> Self {
         Node {
             hash: blake3::hash(data.as_ref()),
-            data: Some(data),
+            inner: NodeInner::Data(data),
         }
     }
 }
@@ -46,7 +46,7 @@ mod tests {
             node_leaf,
             Node {
                 hash: hash_lr(hash, hash),
-                data: None
+                inner: NodeInner::Leaf
             }
         )
     }
@@ -57,7 +57,7 @@ mod tests {
             Node::new_data(TEST_DATA),
             Node {
                 hash: blake3::hash(TEST_DATA),
-                data: Some(TEST_DATA)
+                inner: NodeInner::Data(TEST_DATA)
             }
         )
     }

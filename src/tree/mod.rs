@@ -81,7 +81,7 @@ pub struct Tree<T: AsRef<[u8]>> {
     /// usability of the raw data
     ///
     /// All [Node]s of this vector are guaranteed to have an [Option::Some] value
-    /// for the [Node::data] element
+    /// for the [Node::inner] element
     ///
     /// # Behind-the-scenes
     ///

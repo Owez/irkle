@@ -1,7 +1,7 @@
 //! Contains [Tree] retrieval implementation for child/parent [Node] getting
 
 use super::Tree;
-use crate::Node;
+use crate::{Node, NodeInner};
 
 impl<T: AsRef<[u8]>> Tree<T> {
     /// Returns a reference to the parent of a given `ind` of a [Node] inside of the
@@ -28,11 +28,11 @@ impl<T: AsRef<[u8]>> Tree<T> {
     /// [Tree::inner] vector
     pub fn left(&self, ind: usize) -> Option<&Node<T>> {
         match self.inner.get(ind) {
-            Some(n) => {
-                if n.data.is_some() {
-                    return None;
-                }
-            }
+            Some(n) => match n.inner {
+                NodeInner::Data(_) => return None,
+                NodeInner::Padding => return None,
+                _ => (),
+            },
             None => (),
         }
 
@@ -43,11 +43,11 @@ impl<T: AsRef<[u8]>> Tree<T> {
     /// inside of the [Tree::inner] vector
     pub fn left_mut(&mut self, ind: usize) -> Option<&mut Node<T>> {
         match self.inner.get(ind) {
-            Some(n) => {
-                if n.data.is_some() {
-                    return None;
-                }
-            }
+            Some(n) => match n.inner {
+                NodeInner::Data(_) => return None,
+                NodeInner::Padding => return None,
+                _ => (),
+            },
             None => (),
         }
 
@@ -58,11 +58,11 @@ impl<T: AsRef<[u8]>> Tree<T> {
     /// [Tree::inner] vector
     pub fn right(&self, ind: usize) -> Option<&Node<T>> {
         match self.inner.get(ind) {
-            Some(n) => {
-                if n.data.is_some() {
-                    return None;
-                }
-            }
+            Some(n) => match n.inner {
+                NodeInner::Data(_) => return None,
+                NodeInner::Padding => return None,
+                _ => (),
+            },
             None => (),
         }
 
@@ -73,11 +73,11 @@ impl<T: AsRef<[u8]>> Tree<T> {
     /// inside of the [Tree::inner] vector
     pub fn right_mut(&mut self, ind: usize) -> Option<&mut Node<T>> {
         match self.inner.get(ind) {
-            Some(n) => {
-                if n.data.is_some() {
-                    return None;
-                }
-            }
+            Some(n) => match n.inner {
+                NodeInner::Data(_) => return None,
+                NodeInner::Padding => return None,
+                _ => (),
+            },
             None => (),
         }
 
