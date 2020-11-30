@@ -1,5 +1,4 @@
-//! Contains [Node] and related implementations, see item-level documentation for
-//! more information
+//! Contains [Node] and [NodeInner], see item-level documentation for more information
 
 mod new;
 

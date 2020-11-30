@@ -1,5 +1,4 @@
-//! Contains [Tree] and related implementations, see item-level documentation for
-//! more information
+//! Contains [Tree], see item-level documentation for more information
 
 mod new;
 mod retrieval;
