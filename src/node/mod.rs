@@ -32,6 +32,9 @@ pub enum NodeInner<T: AsRef<[u8]>> {
 
     /// Padding if the length of all the [Node]s with [NodeInner::Data] are of an
     /// odd number
+    ///
+    /// If this value is present, any hash contained inside of the [Node::hash]
+    /// element is irrelevant to the program and may be zeroed out.
     Padding,
 
     /// A data block, contained at the end of a [Tree](crate::Tree) which may be

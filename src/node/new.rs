@@ -14,7 +14,8 @@ fn hash_lr(left: blake3::Hash, right: blake3::Hash) -> blake3::Hash {
 }
 
 impl<T: AsRef<[u8]>> Node<T> {
-    /// Creates a new leaf-style [Node] from a present `left` and `right` hashes
+    /// Creates a new leaf [Node] from a present `left` and `right` hashes, which
+    /// conforms to [NodeInner::Leaf]
     pub fn new_leaf(left: blake3::Hash, right: blake3::Hash) -> Self {
         Node {
             hash: hash_lr(left, right),
@@ -22,11 +23,21 @@ impl<T: AsRef<[u8]>> Node<T> {
         }
     }
 
-    /// Creates a new datablock-style [Node] from given raw data
+    /// Creates a new data block [Node] from given raw data, which conforms to
+    /// [NodeInner::Data]
     pub fn new_data(data: T) -> Self {
         Node {
             hash: blake3::hash(data.as_ref()),
             inner: NodeInner::Data(data),
+        }
+    }
+
+    /// Creates a new padding [Node] for odd-length data block padding, which
+    /// conforms to [NodeInner::Padding]
+    pub fn new_padding() -> Self {
+        Node {
+            hash: blake3::Hash::from([0; 32]),
+            inner: NodeInner::Padding,
         }
     }
 }
@@ -58,6 +69,19 @@ mod tests {
             Node {
                 hash: blake3::hash(TEST_DATA),
                 inner: NodeInner::Data(TEST_DATA)
+            }
+        )
+    }
+
+    #[test]
+    fn simple_padding() {
+        let node: Node<&[u8]> = Node::new_padding();
+
+        assert_eq!(
+            node,
+            Node {
+                hash: blake3::Hash::from([0; 32]),
+                inner: NodeInner::Padding
             }
         )
     }
