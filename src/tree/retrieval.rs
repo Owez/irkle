@@ -4,8 +4,8 @@ use super::Tree;
 use crate::{Node, NodeInner};
 
 impl<T: AsRef<[u8]>> Tree<T> {
-    /// Returns a reference to the parent of a given `ind` of a [Node] inside of the
-    /// [Tree::inner] vector
+    /// Returns a reference to the parent of a given [Node] and it's index in
+    /// [Tree::inner] in the form of `(ind, parent)`
     pub fn parent(&self, ind: usize) -> Option<(usize, &Node<T>)> {
         if ind < 1 {
             None
@@ -15,8 +15,8 @@ impl<T: AsRef<[u8]>> Tree<T> {
         }
     }
 
-    /// Returns a mutable reference to the parent of a given `ind` of a [Node] inside
-    /// of the [Tree::inner] vector
+    /// Returns a mutable reference to the parent of a given [Node] and it's index
+    /// in [Tree::inner] in the form of `(ind, parent)`
     pub fn parent_mut(&mut self, ind: usize) -> Option<(usize, &mut Node<T>)> {
         if ind < 1 {
             None
@@ -26,8 +26,8 @@ impl<T: AsRef<[u8]>> Tree<T> {
         }
     }
 
-    /// Returns a reference to the left child of a given `ind` of a [Node] inside of the
-    /// [Tree::inner] vector
+    /// Returns a reference to the left child of a given [Node] and it's index in
+    /// [Tree::inner] in the form of `(ind, left child)`
     pub fn left(&self, ind: usize) -> Option<(usize, &Node<T>)> {
         match self.inner.get(ind) {
             Some(n) => match n.inner {
@@ -42,8 +42,8 @@ impl<T: AsRef<[u8]>> Tree<T> {
         Some((pos, self.inner.get(pos)?))
     }
 
-    /// Returns a mutable reference to the left child of a given `ind` of a [Node]
-    /// inside of the [Tree::inner] vector
+    /// Returns a mutable reference to the left child of a given [Node] and it's
+    /// index in [Tree::inner] in the form of `(ind, left child)`
     pub fn left_mut(&mut self, ind: usize) -> Option<(usize, &mut Node<T>)> {
         match self.inner.get(ind) {
             Some(n) => match n.inner {
@@ -58,8 +58,8 @@ impl<T: AsRef<[u8]>> Tree<T> {
         Some((pos, self.inner.get_mut(pos)?))
     }
 
-    /// Returns a reference to the right child of a given `ind` of a [Node] inside of the
-    /// [Tree::inner] vector
+    /// Returns a reference to the right child of a given [Node] and it's index in
+    /// [Tree::inner] in the form of `(ind, right child)`
     pub fn right(&self, ind: usize) -> Option<(usize, &Node<T>)> {
         match self.inner.get(ind) {
             Some(n) => match n.inner {
@@ -74,8 +74,8 @@ impl<T: AsRef<[u8]>> Tree<T> {
         Some((pos, self.inner.get(pos)?))
     }
 
-    /// Returns a mutable reference to the right child of a given `ind` of a [Node]
-    /// inside of the [Tree::inner] vector
+    /// Returns a mutable reference to the right child of a given [Node] and it's
+    /// index in [Tree::inner] in the form of `(ind, right child)`
     pub fn right_mut(&mut self, ind: usize) -> Option<(usize, &mut Node<T>)> {
         match self.inner.get(ind) {
             Some(n) => match n.inner {
